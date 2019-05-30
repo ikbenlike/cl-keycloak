@@ -70,3 +70,14 @@
         (get-well-known client "userinfo_endpoint")
         :method :get
         :additional-headers `(("Authorization" . ,(format nil "Bearer ~a" token)))))))
+
+(defun logout-user (client token)
+  (let ((response (drakma:http-request
+                    (get-well-known client "end_session_endpoint")
+                    :method :post
+                    :parameters `(("refresh_token" . ,token)
+                                  ("client_id" . ,(client-id client))
+                                  ("client_secret" . ,(client-secret client))))))
+    (if (= 0 (length response))
+        nil
+        (yason:parse (flexi-streams:octets-to-string response)))))

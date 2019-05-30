@@ -11,4 +11,5 @@
            #:client-id
            #:client-secret
            #:server-url
-           #:key-realm))
+           #:key-realm
+           #:logout-user))
