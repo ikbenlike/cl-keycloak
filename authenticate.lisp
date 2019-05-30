@@ -39,7 +39,7 @@
   (gethash well-known (server-settings client)))
 
 (defmacro with-client (name args &body body)
-  `(let ((,name ,(apply #'register-client args)))
+  `(let ((,name (register-client ,@args)))
      ,@body))
 
 (defun get-auth-redirect (client &key scope redirect)
@@ -52,15 +52,23 @@
                 `("redirect_uri" . ,redirect))))
 
 (defun request-token (client code redirect)
+  (yason:parse
+    (flexi-streams:octets-to-string
+      (drakma:http-request
+        (get-well-known client "token_endpoint")
+        :method :post
+        :parameters `(("grant_type" . "authorization_code")
+                      ("code" . ,code)
+                      ("redirect_uri" . ,redirect)
+                      ("client_id" . ,(client-id client))
+                      ("client_secret" . ,(client-secret client)))))))
+
+(defun get-user-info (client token)
   (flexi-streams:octets-to-string
-    (drakma:http-request 
-      (get-well-known client "token_endpoint")
-      :method :post
-      :parameters `(("grant_type" . "authorization_code")
-                    ("code" . ,code)
-                    ("redirect_uri" . ,redirect)
-                    ("client_id" . ,(client-id client))
-                    ("client_secret" . ,(client-secret client))))))
+    (drakma:http-request
+      (get-well-known client "userinfo_endpoint")
+      :method :get
+      :additional-headers `(("Authorization" . ,(format nil "Bearer ~a" token))))))
 
 (defun decode-response (response)
   (let ((decoded (yason:parse response)))

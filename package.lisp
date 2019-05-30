@@ -4,6 +4,8 @@
   (:use #:cl)
   (:export #:register-client
            #:get-well-known
+           #:get-auth-redirect
+           #:get-user-info
            #:with-client
            #:request-token
            #:client-id
