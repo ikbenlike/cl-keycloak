@@ -70,8 +70,3 @@
         (get-well-known client "userinfo_endpoint")
         :method :get
         :additional-headers `(("Authorization" . ,(format nil "Bearer ~a" token)))))))
-
-(defun decode-response (response)
-  (let ((decoded (yason:parse response)))
-    (make-instance 'response :token (gethash "access_token" decoded)
-                             :expires-in (gethash "expires_in" decoded))))
