@@ -64,11 +64,12 @@
                       ("client_secret" . ,(client-secret client)))))))
 
 (defun get-user-info (client token)
-  (flexi-streams:octets-to-string
-    (drakma:http-request
-      (get-well-known client "userinfo_endpoint")
-      :method :get
-      :additional-headers `(("Authorization" . ,(format nil "Bearer ~a" token))))))
+  (yason:parse
+    (flexi-streams:octets-to-string
+      (drakma:http-request
+        (get-well-known client "userinfo_endpoint")
+        :method :get
+        :additional-headers `(("Authorization" . ,(format nil "Bearer ~a" token)))))))
 
 (defun decode-response (response)
   (let ((decoded (yason:parse response)))
